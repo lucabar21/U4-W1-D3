@@ -19,7 +19,7 @@ if (isset($_GET['id'])) {
     $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
     $stmt->execute([$_GET['id']]);
 
-    header("Location: index.php");
+    header("Location: /U4-W1-D3/Esercizio%201/");
     exit;
 } else {
     echo 'Impossibile eliminare';

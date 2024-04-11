@@ -1,5 +1,21 @@
 <?php
 
+$host = 'localhost';
+$db = 'ifoa_firstdb';
+$user = 'root';
+$pass = '';
+
+try {
+    $dsn = "mysql:host=$host;dbname=$db";
+    $pdo = new PDO($dsn, $user, $pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES => false,
+    ]);
+} catch (PDOException $e) {
+    die("Errore di connessione al database: " . $e->getMessage());
+}
+
 if (isset($_POST["username"], $_POST['email'], $_POST['password'])) {
     $username = $_POST['username'];
     $email = $_POST['email'];
@@ -24,32 +40,11 @@ if (isset($_POST["username"], $_POST['email'], $_POST['password'])) {
     if (!empty($errors)) {
         echo '<pre>' . print_r($errors, true) . '</pre>';
     } else {
+        $stmt = $pdo->prepare('INSERT INTO users (username, email, password) VALUES (:username, :email, :password)');
+        $stmt->execute(['username' => $username, 'email' => $email, 'password' => $password]);
+
         header("Location:/U4-W1-D3/Esercizio%201/");
-    }
-}
-
-
-$host = 'localhost';
-$db = 'ifoa_firstdb';
-$user = 'root';
-$pass = '';
-
-$dsn = "mysql:host=$host;dbname=$db";
-
-$options = [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES => false,
-];
-
-$pdo = new PDO($dsn, $user, $pass, $options);
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $userID = $_GET['id'];
-
-    if (isset($username)) {
-        $stmt = $pdo->prepare('UPDATE users SET username = :username, email = :email, password = :password WHERE id = :id');
-        $stmt->execute(['username' => $username, 'email' => $email, 'password' => $password, 'id' => $userID]);
-        header("Location:/U4-W1-D3/Esercizio%201/");
+        exit();
     }
 }
 ?>
@@ -77,7 +72,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
 <body>
     <div class="p-2">
-        <h3 class="text-center">Modifica informazioni utente</h3>
+        <h3 class="text-center">Aggiungi utente</h3>
         <form action="" method="post">
             <div class="mb-3">
                 <label for="exampleInputUsername" class="form-label">Username</label>
