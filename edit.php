@@ -47,7 +47,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $userID = $_GET['id'];
 
     if (isset($username)) {
-        $stmt = $pdo->prepare('UPDATE users SET username = :username, email = :email, password = :password WHERE id = :id');
+        $stmt = $pdo->prepare('UPDATE * FROM users SET username = :username, email = :email, password = :password WHERE id = :id');
         $stmt->execute(['username' => $username, 'email' => $email, 'password' => $password, 'id' => $userID]);
         header("Location:/U4-W1-D3/Esercizio%201/");
     }

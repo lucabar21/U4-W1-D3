@@ -63,19 +63,53 @@ if (isset($_GET["username"])) {
 
     <div class="mt-4">
         <h4 class="text-center">Risultati della ricerca</h4>
-        <?php foreach ($results as $user): ?>
-            <div class='d-flex flex-column gap-3'>
-                <div class='d-flex p-2 gap-3 align-items-baseline justify-content-between'>
-                    <p class='card-text'><?= $user['username'] ?></p>
-                    <p class='card-text'><?= $user['email'] ?> </p>
-                    <div class='d-flex gap-1'>
-                        <a href='/U4-W1-D3/Esercizio%201/details.php/?id=<?= $user['id'] ?>' class='btn btn-primary'>Go</a>
-                        <a href='/U4-W1-D3/Esercizio%201/edit.php/?id=<?= $user['id'] ?>' class='btn btn-warning'>Edit</a>
-                        <a href='/U4-W1-D3/Esercizio%201/delete.php/?id=<?= $user['id'] ?>'
-                            class='btn btn-danger'>Delete</a>
+        <?php
+        if (isset($username)) {
+            $limit = 5;
+            $query = "SELECT count(*) FROM users WHERE username LIKE ?";
+
+            $s = $pdo->prepare($query);
+            $s->execute(['%' . $username . '%']);
+
+            $total_results = $s->fetchColumn();
+            $total_pages = ceil($total_results / $limit);
+
+            if (!isset($_GET['page'])) {
+                $page = 1;
+            } else {
+                $page = $_GET['page'];
+            }
+
+
+
+            $starting_limit = ($page - 1) * $limit;
+            $show = "SELECT * FROM users WHERE username LIKE ? ORDER BY id DESC LIMIT ?,?";
+
+            $r = $pdo->prepare($show);
+            $r->execute(['%' . $username . '%', $starting_limit, $limit]);
+            while ($res = $r->fetch(PDO::FETCH_ASSOC)):
+                ?>
+                <div class='d-flex flex-column gap-3'>
+                    <div class='d-flex p-2 gap-3 align-items-baseline justify-content-between'>
+                        <p class='card-text'><?= $res['username'] ?></p>
+                        <p class='card-text'><?= $res['email'] ?></p>
+                        <div class='d-flex gap-1'>
+                            <a href='/U4-W1-D3/Esercizio%201/details.php/?id=<?= $res['id'] ?>' class='btn btn-primary'>Go</a>
+                            <a href='/U4-W1-D3/Esercizio%201/edit.php/?id=<?= $res['id'] ?>' class='btn btn-warning'>Edit</a>
+                            <a href='/U4-W1-D3/Esercizio%201/delete.php/?id=<?= $res['id'] ?>' class='btn btn-danger'>Delete</a>
+                        </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
+                <?php endwhile ?>
+
+
+                <div class="d-flex gap-2 mx-auto">
+                    <?php for ($page = 1; $page <= $total_pages; $page++): ?>
+                        <a href='<?php echo "?page=$page"; ?>' class="links"><?php echo $page; ?>
+                        </a>
+                    <?php endfor;
+        } ?>
+
+            </div>
         </div>
 
         <script>

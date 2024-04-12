@@ -15,9 +15,10 @@ $options = [
 
 $pdo = new PDO($dsn, $user, $pass, $options);
 
-$stmt = $pdo->query('SELECT * FROM users')
+$stmt = $pdo->query('SELECT * FROM users');
+?>
 
-    ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,27 +47,56 @@ $stmt = $pdo->query('SELECT * FROM users')
             <h5 class="card-title text-center">Lista Utenti</h5>
             <a href='add.php/?id=$user[id]' class='btn btn-success text-center'>Add</a>
             <a href='search.php/' class='btn btn-secondary text-center'>Search</a>
-
-            <?php
-            foreach ($stmt as $user) {
-                echo
-                    "<div class='d-flex flex-column gap-3'>
-                <div class='d-flex p-2 gap-3 align-items-baseline justify-content-between'>
-                     <p class='card-text'>$user[username] </p>
-                     <p class='card-text'>$user[email] </p>
-                 <div class='d-flex gap-1'>
-                     <a href='details.php/?id=$user[id]' class='btn btn-primary'>Go</a>
-                     <a href='edit.php/?id=$user[id]' class='btn btn-warning'>Edit</a>
-                     <a href='delete.php/?id=$user[id]' class='btn btn-danger'>Delete</a>
-                </div>
-                </div>";
-            }
-            ?>
         </div>
     </div>
-    <script>
+    <?php
 
-    </script>
+    $limit = 5;
+    $query = "SELECT count(*) FROM users";
+
+    $s = $pdo->query($query);
+    $total_results = $s->fetchColumn();
+    $total_pages = ceil($total_results / $limit);
+
+    if (!isset($_GET['page'])) {
+        $page = 1;
+    } else {
+        $page = $_GET['page'];
+    }
+
+
+
+    $starting_limit = ($page - 1) * $limit;
+    $show = "SELECT * FROM users ORDER BY id DESC LIMIT ?,?";
+
+    $r = $pdo->prepare($show);
+    $r->execute([$starting_limit, $limit]);
+
+    while ($res = $r->fetch(PDO::FETCH_ASSOC)):
+        ?>
+        <div class='d-flex flex-column gap-3'>
+            <div class='d-flex p-2 gap-3 align-items-baseline justify-content-between'>
+                <p class='card-text'><?= $res['username'] ?></p>
+                <p class='card-text'><?= $res['email'] ?></p>
+                <div class='d-flex gap-1'>
+                    <a href='details.php/?id=<?= $res['id'] ?>' class='btn btn-primary'>Go</a>
+                    <a href='edit.php/?id=<?= $res['id'] ?>' class='btn btn-warning'>Edit</a>
+                    <a href='delete.php/?id=<?= $res['id'] ?>' class='btn btn-danger'>Delete</a>
+                </div>
+            </div>
+        <?php endwhile ?>
+
+
+
+        <div class="d-flex gap-2 mx-auto">
+            <?php for ($page = 1; $page <= $total_pages; $page++): ?>
+                <a href='<?php echo "?page=$page"; ?>' class="links"><?php echo $page; ?>
+                </a>
+            <?php endfor; ?>
+        </div>
+        <script>
+
+        </script>
 </body>
 
 </html>
