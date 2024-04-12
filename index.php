@@ -42,8 +42,11 @@ $stmt = $pdo->query('SELECT * FROM users')
 <body>
     <div class="p-2">
         <div class="card-body">
+
             <h5 class="card-title text-center">Lista Utenti</h5>
             <a href='add.php/?id=$user[id]' class='btn btn-success text-center'>Add</a>
+            <a href='search.php/' class='btn btn-secondary text-center'>Search</a>
+
             <?php
             foreach ($stmt as $user) {
                 echo
